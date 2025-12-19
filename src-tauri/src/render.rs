@@ -30,14 +30,22 @@ impl Default for Fractal {
 }
 
 impl Fractal {
+    pub fn zoom(&mut self, width: usize, height: usize, x: usize, y: usize, zoom_mult: f64) {}
+
     pub fn get_fractal_pixels(&self, width: usize, height: usize) -> Vec<u8> {
         // According to this documentation (https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas),
         // The ImageData object uses RGBA, so each pixel needs four bytes
         let mut pixels = Vec::with_capacity(width * height * 4_usize);
 
+        // calculate window dimension values
+
+        let delta_x = ((X_MAX - X_MIN) / 2.0) / self.zoom;
+        let delta_y = ((Y_MAX - Y_MIN) / 2.0) / self.zoom;
+
         for i in 0..height {
             for j in 0..width {
-                let pixel = self.unoptimized_get_pixel(j as f64, i as f64, width, height);
+                let pixel =
+                    self.unoptimized_get_pixel(j as f64, i as f64, width, height, delta_x, delta_y);
                 pixels.extend(pixel.to_rgba_bytes());
             }
         }
@@ -45,10 +53,15 @@ impl Fractal {
         pixels
     }
 
-    fn unoptimized_get_pixel(&self, px: f64, py: f64, width: usize, height: usize) -> Rgb {
-        let delta_x = ((X_MAX - X_MIN) / 2.0) / self.zoom; // These are the numerical distance from the center of the screen to the one side
-        let delta_y = ((Y_MAX - Y_MIN) / 2.0) / self.zoom;
-
+    fn unoptimized_get_pixel(
+        &self,
+        px: f64,
+        py: f64,
+        width: usize,
+        height: usize,
+        delta_x: f64,
+        delta_y: f64,
+    ) -> Rgb {
         let x0 = scale_coordinate(
             px,
             (width as u32).into(),

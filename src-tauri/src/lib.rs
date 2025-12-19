@@ -11,6 +11,11 @@ fn get_pixels(width: usize, height: usize, fractal_state: State<'_, Mutex<Fracta
     fractal.get_fractal_pixels(width, height)
 }
 
+#[tauri::command]
+fn zoom(width: usize, height: usize, x: usize, y: usize, fractal_state: State<'_, Mutex<Fractal>>) {
+    let fractal = fractal_state.lock().unwrap();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()

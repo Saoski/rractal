@@ -16,13 +16,18 @@ function App() {
   }
 
   return (
-    <main className="container">
-      <Canvas
-        getFractalPixels={getFractalPixels}
-        setZoom={setZoom}
-        width={1600}
-        height={900}
-      />
+    <main className="flex-col justify-center items-center">
+      <div className="flex">
+        <div className="flex-col justify-start">
+          <button onClick={() => {}}>Reset</button>
+        </div>
+        <Canvas
+          getFractalPixels={getFractalPixels}
+          setZoom={setZoom}
+          width={1600}
+          height={900}
+        />
+      </div>
     </main>
   );
 }

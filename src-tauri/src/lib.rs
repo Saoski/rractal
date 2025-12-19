@@ -1,8 +1,8 @@
-use render::Fractal;
+use fractal::Fractal;
 use std::sync::Mutex;
 use tauri::{Manager, State};
 
-mod render;
+mod fractal;
 
 #[tauri::command]
 fn get_pixels(width: usize, height: usize, fractal_state: State<'_, Mutex<Fractal>>) -> Vec<u8> {

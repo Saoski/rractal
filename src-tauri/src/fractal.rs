@@ -1,4 +1,4 @@
-use crate::render::palette::Rgb;
+use crate::fractal::palette::Rgb;
 
 const MAX_ITER: u32 = 500;
 const X_MIN: f64 = -2.0;

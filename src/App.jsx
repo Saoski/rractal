@@ -8,8 +8,9 @@ function App() {
   }
 
   const setZoom = (event, bounding) => {
-    const x = event.clientX - bounding.left;
-    const y = event.clientY - bounding.top;
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    const x = (event.clientX - bounding.left) * devicePixelRatio;
+    const y = (event.clientY - bounding.top) * devicePixelRatio;
     console.log(`Clicked at (${x}, ${y})`);
   }
 

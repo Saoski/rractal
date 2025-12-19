@@ -2,8 +2,7 @@ import { useEffect } from "react";
 import { useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-const Canvas = ({ getFractalPixels, ...props }) => {
-
+const Canvas = ({ getFractalPixels, setZoom, ...props }) => {
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -11,9 +10,7 @@ const Canvas = ({ getFractalPixels, ...props }) => {
       const canvas = canvasRef.current
       const context = canvas.getContext('2d')
 
-      const newPixelData = await invoke('get_pixels', { height: canvas.height, width: canvas.width })
-      console.log("📢[Canvas.jsx:15]: width: ", canvas.width);
-      console.log("📢[Canvas.jsx:17]: height: ", canvas.height);
+      const newPixelData = await getFractalPixels(canvas.width, canvas.height)
 
       const imageData = context.createImageData(canvas.width, canvas.height)
 
@@ -25,7 +22,7 @@ const Canvas = ({ getFractalPixels, ...props }) => {
     draw();
   }, [])
 
-  return <canvas ref={canvasRef} {...props} />
+  return <canvas ref={canvasRef} onClick={(event) => {setZoom(event, canvasRef.current.getBoundingClientRect())}} {...props} />
 }
 
 export default Canvas

@@ -12,8 +12,17 @@ fn get_pixels(width: usize, height: usize, fractal_state: State<'_, Mutex<Fracta
 }
 
 #[tauri::command]
-fn zoom(width: usize, height: usize, x: usize, y: usize, fractal_state: State<'_, Mutex<Fractal>>) {
-    let fractal = fractal_state.lock().unwrap();
+fn zoom(
+    width: usize,
+    height: usize,
+    x: usize,
+    y: usize,
+    zoom_mult: f64,
+    fractal_state: State<'_, Mutex<Fractal>>,
+) {
+    let mut fractal = fractal_state.lock().unwrap();
+
+    fractal.zoom(width, height, x, y, zoom_mult);
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

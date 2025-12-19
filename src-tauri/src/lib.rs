@@ -5,10 +5,10 @@ use tauri::{Manager, State};
 mod render;
 
 #[tauri::command]
-fn get_pixels(fractal_state: State<'_, Mutex<Fractal>>) -> Vec<u8> {
+fn get_pixels(width: usize, height: usize, fractal_state: State<'_, Mutex<Fractal>>) -> Vec<u8> {
     let fractal = fractal_state.lock().unwrap();
 
-    fractal.get_fractal_pixels()
+    fractal.get_fractal_pixels(width, height)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

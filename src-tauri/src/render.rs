@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex};
-
 use crate::render::palette::Rgb;
 
 const MAX_ITER: u32 = 500;
@@ -18,8 +16,6 @@ fn scale_coordinate(coord: f64, window_dim: f64, min: f64, max: f64) -> f64 {
 }
 
 pub struct Fractal {
-    width: usize,
-    height: usize,
     center_x: f64,
     center_y: f64, // Center of frame
     zoom: f64,
@@ -28,8 +24,6 @@ pub struct Fractal {
 impl Default for Fractal {
     fn default() -> Self {
         Self {
-            width: WIDTH,
-            height: HEIGHT,
             center_x: (X_MAX - X_MIN) / 2.0,
             center_y: (Y_MAX - Y_MIN) / 2.0,
             zoom: 1.0,
@@ -38,13 +32,13 @@ impl Default for Fractal {
 }
 
 impl Fractal {
-    pub fn get_fractal_pixels(&self) -> Vec<u8> {
+    pub fn get_fractal_pixels(&self, width: usize, height: usize) -> Vec<u8> {
         // According to this documentation (https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas),
         // The ImageData object uses RGBA, so each pixel needs four bytes
-        let mut pixels = Vec::with_capacity(self.width * self.height * 4_usize);
+        let mut pixels = Vec::with_capacity(width * height * 4_usize);
 
-        for i in 0..self.height {
-            for j in 0..self.width {
+        for i in 0..height {
+            for j in 0..width {
                 let pixel = self.unoptimized_get_pixel(i as f64, j as f64);
                 pixels.extend(pixel.to_rgba_bytes());
             }

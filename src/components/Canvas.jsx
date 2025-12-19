@@ -6,31 +6,32 @@ const Canvas = ({ getFractalPixels, setZoom, width, height, ...props }) => {
   const canvasRef = useRef(null)
   const devicePixelRatio = window.devicePixelRatio || 1;
 
-  useEffect(() => {
-    const draw = async () => {
-      const canvas = canvasRef.current
-      const context = canvas.getContext('2d')
+  const draw = async () => {
+    const canvas = canvasRef.current
+    const context = canvas.getContext('2d')
 
-      const newPixelData = await getFractalPixels(canvas.width, canvas.height)
+    const newPixelData = await getFractalPixels(canvas.width, canvas.height)
 
-      const imageData = context.createImageData(canvas.width, canvas.height)
+    const imageData = context.createImageData(canvas.width, canvas.height)
 
-      imageData.data.set(newPixelData);
+    imageData.data.set(newPixelData);
 
-      context.putImageData(imageData, 0, 0)
-    }
+    context.putImageData(imageData, 0, 0)
+  }
 
-    draw();
-  }, [])
+  useEffect(() => {draw()}, [])
 
   return (<canvas
     ref={canvasRef}
-    onClick={(event) => { setZoom(event, canvasRef.current.getBoundingClientRect()) }}
+    onClick={(event) => { 
+      setZoom(event, canvasRef.current.getBoundingClientRect(), width, height)
+      draw()
+    }}
     width={width * devicePixelRatio}
     height={height * devicePixelRatio}
     style={{
-      width: `${width}px`, 
-      height: `${height}px`, 
+      width: `${width}px`,
+      height: `${height}px`,
       border: '1px solid #ccc',
       imageRendering: 'pixelated',
     }}

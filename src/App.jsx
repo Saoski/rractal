@@ -7,11 +7,12 @@ function App() {
     return await invoke("get_pixels", { width, height })
   }
 
-  const setZoom = (event, bounding) => {
+  const setZoom = async (event, bounding, width, height) => {
     const devicePixelRatio = window.devicePixelRatio || 1;
-    const x = (event.clientX - bounding.left) * devicePixelRatio;
-    const y = (event.clientY - bounding.top) * devicePixelRatio;
+    const x = Math.round((event.clientX - bounding.left) * devicePixelRatio);
+    const y = Math.round((event.clientY - bounding.top) * devicePixelRatio);
     console.log(`Clicked at (${x}, ${y})`);
+    await invoke("zoom" ,{width, height, x, y, zoomMult: 2})
   }
 
   return (

@@ -1,8 +1,6 @@
 use crate::render::palette::Rgb;
 
 const MAX_ITER: u32 = 500;
-const WIDTH: usize = 800;
-const HEIGHT: usize = 600;
 const X_MIN: f64 = -2.0;
 const X_MAX: f64 = 0.47;
 const Y_MIN: f64 = -1.12;
@@ -39,7 +37,7 @@ impl Fractal {
 
         for i in 0..height {
             for j in 0..width {
-                let pixel = self.unoptimized_get_pixel(i as f64, j as f64);
+                let pixel = self.unoptimized_get_pixel(i as f64, j as f64, width, height);
                 pixels.extend(pixel.to_rgba_bytes());
             }
         }
@@ -47,20 +45,20 @@ impl Fractal {
         pixels
     }
 
-    fn unoptimized_get_pixel(&self, px: f64, py: f64) -> Rgb {
+    fn unoptimized_get_pixel(&self, px: f64, py: f64, width: usize, height: usize) -> Rgb {
         let delta_x = ((X_MAX - X_MIN) / 2.0) / self.zoom; // These are the numerical distance from the center of the screen to the one side
         let delta_y = ((Y_MAX - Y_MIN) / 2.0) / self.zoom;
 
         let x0 = scale_coordinate(
             px,
-            (WIDTH as u32).into(),
+            (width as u32).into(),
             self.center_x - delta_x,
             self.center_x + delta_x,
         );
 
         let y0 = scale_coordinate(
             py,
-            (HEIGHT as u32).into(),
+            (height as u32).into(),
             self.center_y - delta_y,
             self.center_y + delta_y,
         );
@@ -75,7 +73,7 @@ impl Fractal {
             i += 1;
         }
 
-        let val: u8 = (i / MAX_ITER * 256) as u8;
+        let val: u8 = (i as f64 / MAX_ITER as f64 * 256.0) as u8;
 
         Rgb::from_greyscale(val)
     }

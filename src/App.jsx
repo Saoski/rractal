@@ -20,23 +20,9 @@ function App() {
     <main className="container">
       <Canvas 
         getFractalPixels={getFractalPixels}
+        width={800}
+        height={600}
       />
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Bruh a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
     </main>
   );
 }

@@ -22,8 +22,8 @@ pub struct Fractal {
 impl Default for Fractal {
     fn default() -> Self {
         Self {
-            center_x: (X_MAX - X_MIN) / 2.0,
-            center_y: (Y_MAX - Y_MIN) / 2.0,
+            center_x: (X_MAX + X_MIN) / 2.0,
+            center_y: (Y_MAX + Y_MIN) / 2.0,
             zoom: 1.0,
         }
     }
@@ -37,7 +37,7 @@ impl Fractal {
 
         for i in 0..height {
             for j in 0..width {
-                let pixel = self.unoptimized_get_pixel(i as f64, j as f64, width, height);
+                let pixel = self.unoptimized_get_pixel(j as f64, i as f64, width, height);
                 pixels.extend(pixel.to_rgba_bytes());
             }
         }

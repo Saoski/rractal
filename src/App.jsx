@@ -20,8 +20,8 @@ function App() {
     <main className="container">
       <Canvas 
         getFractalPixels={getFractalPixels}
-        width={800}
-        height={600}
+        width={1600}
+        height={900}
       />
     </main>
   );

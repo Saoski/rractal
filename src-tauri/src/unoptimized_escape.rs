@@ -1,7 +1,5 @@
 use std::marker::PhantomData;
 
-use num::Complex;
-
 use crate::fractal::*;
 use crate::palette::Rgb;
 use crate::pixel::PixelAlgo;

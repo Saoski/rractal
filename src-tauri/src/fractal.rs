@@ -32,7 +32,7 @@ impl Default for Fractal {
 impl Fractal {
     pub fn zoom(&mut self, width: usize, height: usize, px: usize, py: usize, zoom_mult: f64) {
         self.zoom *= zoom_mult;
-        
+
         let delta_x = ((X_MAX - X_MIN) / 2.0) / self.zoom;
         let delta_y = ((Y_MAX - Y_MIN) / 2.0) / self.zoom;
 
@@ -64,7 +64,7 @@ impl Fractal {
             for j in 0..width {
                 let pixel =
                     self.unoptimized_get_pixel(j as f64, i as f64, width, height, delta_x, delta_y);
-                pixels.extend(pixel.to_rgba_bytes());
+                pixels.extend(pixel.into_rgba_bytes());
             }
         }
         pixels

@@ -15,7 +15,7 @@ impl Rgb {
     }
 
     /// Returns a vec of three bytes containing the rgb values and an alpha value of 255
-    pub fn to_rgba_bytes(self) -> Vec<u8> {
+    pub fn into_rgba_bytes(self) -> Vec<u8> {
         vec![self.r, self.g, self.b, 255]
     }
 }

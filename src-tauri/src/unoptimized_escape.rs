@@ -80,7 +80,7 @@ impl Fractal for SimpleEscapeFractal {
                     self.center_y + delta_y,
                 );
 
-                let iter_count = self.pixel_algo.compute_pixel(Complex { re: x0, im: y0 });
+                let iter_count = self.pixel_algo.compute_pixel(x0, y0);
                 pixels.extend(iter_to_rgb(iter_count).into_rgba_bytes());
             }
         }

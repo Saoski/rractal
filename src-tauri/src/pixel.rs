@@ -1,24 +1,21 @@
 use std::marker::PhantomData;
 
-use num::{Complex, FromPrimitive, Num, Zero};
-
 pub trait ComputePixel<T> {
-    fn compute_pixel(max_iter: u32, num: Complex<T>) -> u32;
+    fn compute_pixel(max_iter: u32, x0: T, y0: T) -> u32;
 }
 
-struct Escape;
+struct UnoptimizedEscape;
 
-impl<T> ComputePixel<T> for Escape
-where
-    T: Num + Clone + PartialOrd + FromPrimitive,
-{
-    fn compute_pixel(max_iter: u32, c: Complex<T>) -> u32 {
-        let mut z: Complex<T> = Complex::zero();
+impl ComputePixel<f64> for UnoptimizedEscape {
+    fn compute_pixel(max_iter: u32, x0: f64, y0: f64) -> u32 {
+        let mut x = 0.0;
+        let mut y = 0.0;
         let mut i = 0;
 
-        let four = T::from_u8(4).unwrap();
-        while z.norm_sqr() <= four && i < max_iter {
-            z = z.powu(2) + &c;
+        while x * x + y * y <= 4.0 && i < max_iter {
+            let temp = x * x - y * y + x0;
+            y = x * y * 2.0 + y0;
+            x = temp;
             i += 1;
         }
 
@@ -33,13 +30,12 @@ pub enum PixelAlgo<T> {
     },
 }
 
-impl<T> PixelAlgo<T>
-where
-    T: Num + Clone + PartialOrd + FromPrimitive,
-{
-    pub fn compute_pixel(&self, c: Complex<T>) -> u32 {
+impl PixelAlgo<f64> {
+    pub fn compute_pixel(&self, x0: f64, y0: f64) -> u32 {
         match self {
-            PixelAlgo::Escape { max_iter, .. } => Escape::compute_pixel(*max_iter, c),
+            PixelAlgo::Escape { max_iter, .. } => {
+                UnoptimizedEscape::compute_pixel(*max_iter, x0, y0)
+            }
         }
     }
 }

@@ -1,12 +1,15 @@
+mod fractal;
+mod palette;
+mod unoptimized_escape;
+
 use fractal::Fractal;
 use std::sync::Mutex;
 use tauri::{Manager, State};
-
-mod fractal;
+use unoptimized_escape::SimpleEscapeFractal;
 
 #[tauri::command]
-fn get_pixels(width: usize, height: usize, fractal_state: State<'_, Mutex<Fractal>>) -> Vec<u8> {
-    let fractal = fractal_state.lock().unwrap();
+fn get_pixels(width: usize, height: usize, fractal_state: State<'_, FractalState>) -> Vec<u8> {
+    let fractal = fractal_state.fractal.lock().unwrap();
 
     fractal.get_fractal_pixels(width, height)
 }
@@ -18,25 +21,31 @@ fn zoom(
     x: usize,
     y: usize,
     zoom_mult: f64,
-    fractal_state: State<'_, Mutex<Fractal>>,
+    fractal_state: State<'_, FractalState>,
 ) {
-    let mut fractal = fractal_state.lock().unwrap();
+    let mut fractal = fractal_state.fractal.lock().unwrap();
 
     fractal.zoom(width, height, x, y, zoom_mult);
 }
 
 #[tauri::command]
-fn reset_zoom(fractal_state: State<'_, Mutex<Fractal>>) {
-    let mut fractal = fractal_state.lock().unwrap();
+fn reset_zoom(fractal_state: State<'_, FractalState>) {
+    let mut fractal = fractal_state.fractal.lock().unwrap();
 
-    *fractal = Fractal::default();
+    fractal.reset();
+}
+
+struct FractalState {
+    fractal: Mutex<Box<dyn Fractal + Send>>,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
-            app.manage(Mutex::new(Fractal::default()));
+            app.manage(FractalState {
+                fractal: Mutex::new(Box::new(SimpleEscapeFractal::default())),
+            });
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())

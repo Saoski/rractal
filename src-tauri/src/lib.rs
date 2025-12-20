@@ -25,6 +25,13 @@ fn zoom(
     fractal.zoom(width, height, x, y, zoom_mult);
 }
 
+#[tauri::command]
+fn reset_zoom(fractal_state: State<'_, Mutex<Fractal>>) {
+    let mut fractal = fractal_state.lock().unwrap();
+
+    *fractal = Fractal::default();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -33,7 +40,7 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![get_pixels, zoom])
+        .invoke_handler(tauri::generate_handler![get_pixels, zoom, reset_zoom])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

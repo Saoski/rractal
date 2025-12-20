@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { useRef } from "react";
-import { invoke } from "@tauri-apps/api/core";
 
-const Canvas = ({ getFractalPixels, setZoom, width, height, ...props }) => {
+const Canvas = ({ fractalPixels, setZoom, width, height, ...props }) => {
   const canvasRef = useRef(null)
   const devicePixelRatio = window.devicePixelRatio || 1;
 
@@ -10,22 +9,19 @@ const Canvas = ({ getFractalPixels, setZoom, width, height, ...props }) => {
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
 
-    const newPixelData = await getFractalPixels(canvas.width, canvas.height)
-
     const imageData = context.createImageData(canvas.width, canvas.height)
 
-    imageData.data.set(newPixelData);
+    imageData.data.set(fractalPixels);
 
     context.putImageData(imageData, 0, 0)
   }
 
-  useEffect(() => {draw()}, [])
+  useEffect(() => {draw()}, [fractalPixels])
 
   return (<canvas
     ref={canvasRef}
     onClick={(event) => { 
       setZoom(event, canvasRef.current.getBoundingClientRect(), width, height)
-      draw()
     }}
     width={width * devicePixelRatio}
     height={height * devicePixelRatio}

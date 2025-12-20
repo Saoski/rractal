@@ -1,10 +1,24 @@
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import Canvas from "./components/Canvas.jsx"
+import { useState } from "react";
+import { useEffect } from "react";
 
 function App() {
-  const getFractalPixels = async (width, height) => {
-    return await invoke("get_pixels", { width, height })
+  const CANVAS_WIDTH = 1600
+  const CANVAS_HEIGHT = 900
+
+  const [fractalPixels, setFractalPixels] = useState([])
+
+  useEffect(() => {
+    const fetchPixels = async () => {
+      setFractalPixels(await getFractalPixels());
+    }
+    fetchPixels();
+  }, [])
+
+  const getFractalPixels = async () => {
+    return await invoke("get_pixels", { width: CANVAS_WIDTH, height: CANVAS_HEIGHT })
   }
 
   const setZoom = async (event, bounding, width, height) => {
@@ -13,19 +27,25 @@ function App() {
     const y = Math.round((event.clientY - bounding.top) * devicePixelRatio);
     console.log(`Clicked at (${x}, ${y})`);
     await invoke("zoom" ,{width, height, x, y, zoomMult: 2})
+    setFractalPixels(await getFractalPixels())
+  }
+
+  const resetZoom = async () => {
+    await invoke("reset_zoom", {})
+    setFractalPixels(await getFractalPixels())
   }
 
   return (
     <main className="flex-col justify-center items-center">
       <div className="flex">
         <div className="flex-col justify-start">
-          <button onClick={() => {}}>Reset</button>
+          <button onClick={() => {resetZoom()}}>Reset</button>
         </div>
         <Canvas
-          getFractalPixels={getFractalPixels}
+          fractalPixels={fractalPixels}
           setZoom={setZoom}
-          width={1600}
-          height={900}
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
         />
       </div>
     </main>

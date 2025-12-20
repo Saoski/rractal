@@ -1,5 +1,10 @@
+use std::marker::PhantomData;
+
+use num::Complex;
+
 use crate::fractal::*;
 use crate::palette::Rgb;
+use crate::pixel::PixelAlgo;
 use crate::Fractal;
 
 /// Scales a coordinate in the window into the given range of numbers
@@ -11,6 +16,7 @@ pub struct SimpleEscapeFractal {
     center_x: f64,
     center_y: f64, // Center of frame
     zoom: f64,
+    pixel_algo: PixelAlgo<f64>,
 }
 
 impl Default for SimpleEscapeFractal {
@@ -19,6 +25,10 @@ impl Default for SimpleEscapeFractal {
             center_x: (X_MAX + X_MIN) / 2.0,
             center_y: (Y_MAX + Y_MIN) / 2.0,
             zoom: 1.0,
+            pixel_algo: PixelAlgo::Escape {
+                max_iter: MAX_ITER,
+                num_type: PhantomData,
+            },
         }
     }
 }
@@ -56,9 +66,22 @@ impl Fractal for SimpleEscapeFractal {
 
         for i in 0..height {
             for j in 0..width {
-                let pixel =
-                    self.unoptimized_get_pixel(j as f64, i as f64, width, height, delta_x, delta_y);
-                pixels.extend(pixel.into_rgba_bytes());
+                let x0 = scale_coordinate(
+                    j as f64,
+                    (width as u32).into(),
+                    self.center_x - delta_x,
+                    self.center_x + delta_x,
+                );
+
+                let y0 = scale_coordinate(
+                    i as f64,
+                    (height as u32).into(),
+                    self.center_y - delta_y,
+                    self.center_y + delta_y,
+                );
+
+                let iter_count = self.pixel_algo.compute_pixel(Complex { re: x0, im: y0 });
+                pixels.extend(iter_to_rgb(iter_count).into_rgba_bytes());
             }
         }
         pixels
@@ -69,42 +92,8 @@ impl Fractal for SimpleEscapeFractal {
     }
 }
 
-impl SimpleEscapeFractal {
-    fn unoptimized_get_pixel(
-        &self,
-        px: f64,
-        py: f64,
-        width: usize,
-        height: usize,
-        delta_x: f64,
-        delta_y: f64,
-    ) -> Rgb {
-        let x0 = scale_coordinate(
-            px,
-            (width as u32).into(),
-            self.center_x - delta_x,
-            self.center_x + delta_x,
-        );
+fn iter_to_rgb(iter_count: u32) -> Rgb {
+    let val: u8 = (iter_count as f64 / MAX_ITER as f64 * 256.0) as u8;
 
-        let y0 = scale_coordinate(
-            py,
-            (height as u32).into(),
-            self.center_y - delta_y,
-            self.center_y + delta_y,
-        );
-
-        let mut x = 0.0;
-        let mut y = 0.0;
-        let mut i = 0;
-        while x * x + y * y <= 4.0 && i < MAX_ITER {
-            let temp = x * x - y * y + x0;
-            y = 2.0 * x * y + y0;
-            x = temp;
-            i += 1;
-        }
-
-        let val: u8 = (i as f64 / MAX_ITER as f64 * 256.0) as u8;
-
-        Rgb::from_greyscale(val)
-    }
+    Rgb::from_greyscale(val)
 }

@@ -1,5 +1,6 @@
 mod fractal;
 mod palette;
+mod pixel;
 mod unoptimized_escape;
 
 use fractal::Fractal;

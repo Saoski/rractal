@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useEffect } from "react";
 
 function App() {
-  const CANVAS_WIDTH = 1600
-  const CANVAS_HEIGHT = 900
+  const CANVAS_WIDTH = 800
+  const CANVAS_HEIGHT = 800
 
   const [fractalPixels, setFractalPixels] = useState([])
 

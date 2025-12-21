@@ -1,12 +1,12 @@
 mod fractal;
+mod fractals;
 mod palette;
 mod pixel;
-mod unoptimized_escape;
 
 use fractal::Fractal;
+use fractals::Fractalf64;
 use std::sync::Mutex;
 use tauri::{Manager, State};
-use unoptimized_escape::SimpleEscapeFractal;
 
 #[tauri::command]
 fn get_pixels(width: usize, height: usize, fractal_state: State<'_, FractalState>) -> Vec<u8> {
@@ -45,7 +45,7 @@ pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
             app.manage(FractalState {
-                fractal: Mutex::new(Box::new(SimpleEscapeFractal::default())),
+                fractal: Mutex::new(Box::new(Fractalf64::default())),
             });
             Ok(())
         })

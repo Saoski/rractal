@@ -110,7 +110,7 @@ impl Fractal for Fractalf64 {
 }
 
 fn iter_to_rgb(iter_count: u32) -> Rgb {
-    let val: u8 = (iter_count as f64 / MAX_ITER as f64 * 256.0) as u8;
+    let val = iter_count as f32 / MAX_ITER as f32;
 
-    Rgb::from_greyscale(val)
+    Rgb::from_hsl(val * 0.8, 1.0, 0.5)
 }

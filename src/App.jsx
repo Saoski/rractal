@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useEffect } from "react";
 
 function App() {
-  const CANVAS_WIDTH = 800
-  const CANVAS_HEIGHT = 800
+  const CANVAS_WIDTH = 1600
+  const CANVAS_HEIGHT = 900
 
   const [fractalPixels, setFractalPixels] = useState([])
 
@@ -36,7 +36,7 @@ function App() {
   }
 
   return (
-    <main className="flex-col justify-center items-center">
+    <main className="flex justify-center items-center h-screen">
       <div className="flex">
         <div className="flex-col justify-start">
           <button onClick={() => {resetZoom()}}>Reset</button>

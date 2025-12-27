@@ -25,7 +25,7 @@ impl Default for Fractalf64 {
             center_x: (X_MAX + X_MIN) / 2.0,
             center_y: (Y_MAX + Y_MIN) / 2.0,
             zoom: 1.0,
-            pixel_algo: PixelAlgo::Escape {
+            pixel_algo: PixelAlgo::OptimizedEscape {
                 max_iter: MAX_ITER,
                 num_type: PhantomData,
             },
@@ -112,5 +112,5 @@ impl Fractal for Fractalf64 {
 fn iter_to_rgb(iter_count: u32) -> Rgb {
     let val = iter_count as f32 / MAX_ITER as f32;
 
-    Rgb::from_hsl(val * 0.8, 1.0, 0.5)
+    Rgb::from_greyscale((val * 256.0) as u8)
 }

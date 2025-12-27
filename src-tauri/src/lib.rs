@@ -5,7 +5,9 @@ mod pixel;
 
 use fractal::{Algorithm, Fractal};
 use fractals::Fractalf64;
+use serde::Serialize;
 use std::sync::Mutex;
+use strum::VariantNames;
 use tauri::{Manager, State};
 
 #[tauri::command]
@@ -43,6 +45,11 @@ fn choose_algo(algo: Algorithm, fractal_state: State<'_, FractalState>) {
     fractal.choose_algo(algo);
 }
 
+#[tauri::command]
+fn get_algos() -> impl Serialize {
+    Algorithm::VARIANTS
+}
+
 struct FractalState {
     fractal: Mutex<Box<dyn Fractal + Send>>,
 }
@@ -57,7 +64,13 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![get_pixels, zoom, reset_zoom])
+        .invoke_handler(tauri::generate_handler![
+            get_pixels,
+            zoom,
+            reset_zoom,
+            get_algos,
+            choose_algo
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -3,7 +3,7 @@ mod fractals;
 mod palette;
 mod pixel;
 
-use fractal::Fractal;
+use fractal::{Algorithm, Fractal};
 use fractals::Fractalf64;
 use std::sync::Mutex;
 use tauri::{Manager, State};
@@ -34,6 +34,13 @@ fn reset_zoom(fractal_state: State<'_, FractalState>) {
     let mut fractal = fractal_state.fractal.lock().unwrap();
 
     fractal.reset();
+}
+
+#[tauri::command]
+fn choose_algo(algo: Algorithm, fractal_state: State<'_, FractalState>) {
+    let mut fractal = fractal_state.fractal.lock().unwrap();
+
+    fractal.choose_algo(algo);
 }
 
 struct FractalState {

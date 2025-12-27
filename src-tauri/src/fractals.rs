@@ -107,6 +107,19 @@ impl Fractal for Fractalf64 {
     fn reset(&mut self) {
         *self = Self::default();
     }
+
+    fn choose_algo(&mut self, algo: Algorithm) {
+        self.pixel_algo = match algo {
+            Algorithm::OptimizedEscape => PixelAlgo::OptimizedEscape {
+                max_iter: MAX_ITER,
+                num_type: PhantomData,
+            },
+            Algorithm::UnoptimizedEscape => PixelAlgo::UnoptimizedEscape {
+                max_iter: MAX_ITER,
+                num_type: PhantomData,
+            },
+        }
+    }
 }
 
 fn iter_to_rgb(iter_count: u32) -> Rgb {

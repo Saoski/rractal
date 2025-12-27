@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 pub const MAX_ITER: u32 = 1000;
 pub const X_MIN: f64 = -2.0;
 pub const X_MAX: f64 = 0.47;
@@ -10,6 +12,13 @@ pub enum DispatchType {
     // StdThreads,
 }
 
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum Algorithm {
+    OptimizedEscape,
+    UnoptimizedEscape,
+}
+
 pub trait Fractal {
     fn zoom(&mut self, width: usize, height: usize, px: usize, py: usize, zoom_mult: f64);
 
@@ -17,4 +26,6 @@ pub trait Fractal {
 
     /// Returns the fractal to its initial zoom and position
     fn reset(&mut self);
+
+    fn choose_algo(&mut self, algo: Algorithm);
 }

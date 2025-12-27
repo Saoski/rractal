@@ -1,13 +1,13 @@
 use std::marker::PhantomData;
 
-pub trait ComputePixel<T> {
-    fn compute_pixel(max_iter: u32, x0: T, y0: T) -> u32;
+pub trait ComputePixelf64 {
+    fn compute_pixel(max_iter: u32, x0: f64, y0: f64) -> u32;
 }
 
 struct UnoptimizedEscape;
 struct OptimizedEscape;
 
-impl ComputePixel<f64> for UnoptimizedEscape {
+impl ComputePixelf64 for UnoptimizedEscape {
     fn compute_pixel(max_iter: u32, x0: f64, y0: f64) -> u32 {
         let mut x = 0.0;
         let mut y = 0.0;
@@ -24,7 +24,7 @@ impl ComputePixel<f64> for UnoptimizedEscape {
     }
 }
 
-impl ComputePixel<f64> for OptimizedEscape {
+impl ComputePixelf64 for OptimizedEscape {
     fn compute_pixel(max_iter: u32, x0: f64, y0: f64) -> u32 {
         let mut x = 0.0;
         let mut y = 0.0;

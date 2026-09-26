@@ -3,6 +3,15 @@ import "./App.css";
 import Canvas from "./components/Canvas.jsx"
 import { useState } from "react";
 import { useEffect } from "react";
+import { info } from "@tauri-apps/plugin-log";
+
+const toPascalCase = (str) => {
+  return str
+    .trim()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('');
+};
 
 function App() {
   const CANVAS_WIDTH = 1600
@@ -37,7 +46,7 @@ function App() {
     const x = Math.round((event.clientX - bounding.left) * devicePixelRatio);
     const y = Math.round((event.clientY - bounding.top) * devicePixelRatio);
     console.log(`Clicked at (${x}, ${y})`);
-    await invoke("zoom" ,{width, height, x, y, zoomMult: 2})
+    await invoke("zoom", { width, height, x, y, zoomMult: 2 })
     setFractalPixels(await getFractalPixels())
   }
 
@@ -46,20 +55,23 @@ function App() {
     setFractalPixels(await getFractalPixels())
   }
 
-  const handleSelectAlgo = async (chosen_algo) => {
-    await invoke("choose_algo", {chosen_algo})
+  const handleSelectAlgo = async (e) => {
+    let chosen_algo = e.target.value
+    info(`Selecting ${chosen_algo} as the chosen algorithm`)
+    await invoke("choose_algo", { algo: toPascalCase(chosen_algo) })
+    setSelectedAlgo(chosen_algo)
   }
 
   return (
     <main className="flex justify-center items-center h-screen">
       <div className="flex items-start">
         <div className="flex flex-col h-full gap-3">
-          <button onClick={() => {resetZoom()}}>Reset</button>
+          <button onClick={() => { resetZoom() }}>Reset</button>
           <div className="flex gap-1">
             <label htmlFor="algorithms">Select an algorithm:</label>
-            <select name="algorithms" id="algorithms">
+            <select name="algorithms" id="algorithms" onChange={handleSelectAlgo}>
               {algoOptions.map((algorithm) => (
-                <option value="algorithm" onClick={}>{algorithm}</option>
+                <option value={algorithm}>{algorithm}</option>
               ))}
             </select>
           </div>

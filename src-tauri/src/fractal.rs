@@ -1,5 +1,5 @@
 use serde::Deserialize;
-use strum_macros::EnumString;
+use strum_macros::{Display, EnumString};
 
 pub const MAX_ITER: u32 = 1000;
 pub const X_MIN: f64 = -2.0;
@@ -13,8 +13,7 @@ pub enum DispatchType {
     // StdThreads,
 }
 
-#[derive(EnumString, strum_macros::VariantNames, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(EnumString, strum_macros::VariantNames, Deserialize, Display, Copy, Clone)]
 pub enum Algorithm {
     #[strum(serialize = "Optimized Escape")]
     OptimizedEscape,

@@ -9,11 +9,16 @@ use fractals::Fractalf64;
 use serde::Serialize;
 use std::{sync::Mutex, thread};
 use strum::VariantNames;
-use tauri::{Manager, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_log::log;
 
 #[tauri::command]
-fn get_pixels(width: usize, height: usize, fractal_state: State<'_, FractalState>) -> Vec<u8> {
+fn get_pixels(
+    width: usize,
+    height: usize,
+    fractal_state: State<'_, FractalState>,
+    app: AppHandle,
+) -> Vec<u8> {
     let fractal = fractal_state.fractal.lock().unwrap();
     // Channel doesn't need to send actual data, just the event that a pixel was calculated
     let (tx, rx) = unbounded::<()>();
@@ -24,11 +29,15 @@ fn get_pixels(width: usize, height: usize, fractal_state: State<'_, FractalState
             rx.recv()
                 .expect("Pixel progress listener recv should not fail");
             pixels_computed += 1;
-            // Code to broadcast updates
-            if pixels_computed % 1000 == 0 {
-                log::info!("Computed {} pixels", pixels_computed);
+            // Broadcast a percentage progress update
+            if pixels_computed % 20000 == 0 {
+                let percent_progress = (pixels_computed * 100 / pixel_count) as u32;
+                app.emit("fractal-progress", percent_progress)
+                    .unwrap();
             }
         }
+        // Send final 100% progress event
+        app.emit("fractal-progress", 100u32).unwrap();
     });
     log::info!("Drawing fractal!");
     let computed_pixels = fractal.get_fractal_pixels(width, height, tx);

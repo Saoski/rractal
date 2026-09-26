@@ -4,6 +4,9 @@ import Canvas from "./components/Canvas.jsx"
 import { useState } from "react";
 import { useEffect } from "react";
 import { info } from "@tauri-apps/plugin-log";
+import { listen } from "@tauri-apps/api/event";
+import { useRef } from "react";
+import { debug } from "@tauri-apps/plugin-log";
 
 const toPascalCase = (str) => {
   return str
@@ -20,6 +23,9 @@ function App() {
   const [fractalPixels, setFractalPixels] = useState([]);
   const [algoOptions, setAlgoOptions] = useState([]);
   const [selectedAlgo, setSelectedAlgo] = useState("");
+  const [fractalProgressPercent, setFractalProgressPercent] = useState(null);
+
+  const latestRenderId = useRef(0);
 
   const getFractalPixels = async () => {
     return await invoke("get_pixels", { width: CANVAS_WIDTH, height: CANVAS_HEIGHT });
@@ -39,12 +45,33 @@ function App() {
     fetchPixels();
     fetchAlgos();
     setSelectedAlgo(algoOptions[0]);
+
+    // Setup progress listener
+    let unlisten = null;
+
+    async function setupProgressListener() {
+      unlisten = await listen("fractal-progress", (event) => {
+        setFractalProgressPercent(event.payload)
+      })
+    }
+
+    setupProgressListener()
+
+    // Cleanup listener on unmount
+    return () => {
+      if (unlisten !== null) {
+        unlisten.then(f => f())
+      }
+    }
   }, [])
 
   const setZoom = async (event, bounding, width, height) => {
+    setFractalProgressPercent(0)
+
     const devicePixelRatio = window.devicePixelRatio || 1;
     const x = Math.round((event.clientX - bounding.left) * devicePixelRatio);
     const y = Math.round((event.clientY - bounding.top) * devicePixelRatio);
+
     console.log(`Clicked at (${x}, ${y})`);
     await invoke("zoom", { width, height, x, y, zoomMult: 2 })
     setFractalPixels(await getFractalPixels())
@@ -76,12 +103,15 @@ function App() {
             </select>
           </div>
         </div>
-        <Canvas
-          fractalPixels={fractalPixels}
-          setZoom={setZoom}
-          width={CANVAS_WIDTH}
-          height={CANVAS_HEIGHT}
-        />
+        <div className="flex flex-col gap2">
+          <progress value={fractalProgressPercent} max={100} className="w-full" />
+          <Canvas
+            fractalPixels={fractalPixels}
+            setZoom={setZoom}
+            width={CANVAS_WIDTH}
+            height={CANVAS_HEIGHT}
+          />
+        </div>
       </div>
     </main>
   );

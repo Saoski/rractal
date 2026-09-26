@@ -3,19 +3,39 @@ mod fractals;
 mod palette;
 mod pixel;
 
+use crossbeam_channel::unbounded;
 use fractal::{Algorithm, Fractal};
 use fractals::Fractalf64;
 use serde::Serialize;
-use tauri_plugin_log::log;
-use std::sync::Mutex;
+use std::{sync::Mutex, thread};
 use strum::VariantNames;
 use tauri::{Manager, State};
+use tauri_plugin_log::log;
 
 #[tauri::command]
 fn get_pixels(width: usize, height: usize, fractal_state: State<'_, FractalState>) -> Vec<u8> {
     let fractal = fractal_state.fractal.lock().unwrap();
+    // Channel doesn't need to send actual data, just the event that a pixel was calculated
+    let (tx, rx) = unbounded::<()>();
+    let progress_listener_handle = thread::spawn(move || {
+        let pixel_count = width * height;
+        let mut pixels_computed = 0;
+        while pixels_computed < pixel_count {
+            rx.recv()
+                .expect("Pixel progress listener recv should not fail");
+            pixels_computed += 1;
+            // Code to broadcast updates
+            if pixels_computed % 1000 == 0 {
+                log::info!("Computed {} pixels", pixels_computed);
+            }
+        }
+    });
     log::info!("Drawing fractal!");
-    fractal.get_fractal_pixels(width, height)
+    let computed_pixels = fractal.get_fractal_pixels(width, height, tx);
+    progress_listener_handle
+        .join()
+        .expect("Progress listener thread should not fail to join");
+    computed_pixels
 }
 
 #[tauri::command]

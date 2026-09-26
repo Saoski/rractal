@@ -1,3 +1,4 @@
+use crossbeam_channel::Sender;
 use rayon::prelude::*;
 use std::marker::PhantomData;
 
@@ -56,7 +57,7 @@ impl Fractal for Fractalf64 {
         );
     }
 
-    fn get_fractal_pixels(&self, width: usize, height: usize) -> Vec<u8> {
+    fn get_fractal_pixels(&self, width: usize, height: usize, tx: Sender<()>) -> Vec<u8> {
         // calculate window dimension values (distance from center to edge of screen in the complex plane)
         let delta_x = ((X_MAX - X_MIN) / 2.0) / self.zoom;
         let delta_y = ((Y_MAX - Y_MIN) / 2.0) / self.zoom;
@@ -78,6 +79,7 @@ impl Fractal for Fractalf64 {
                         let y0 = scale_coordinate(i as f64, (height as u32).into(), y_min, y_max);
 
                         let iter_count = self.pixel_algo.compute_pixel(x0, y0);
+                        tx.send(()).expect("Sending progress for fractal pixels should not fail");
                         pixels.extend(iter_to_rgb(iter_count).into_rgba_bytes());
                     }
                 }
@@ -98,6 +100,7 @@ impl Fractal for Fractalf64 {
                         let iter_count = self.pixel_algo.compute_pixel(x0, y0);
                         let rgba = iter_to_rgb(iter_count).into_rgba_bytes();
                         chunk.copy_from_slice(&rgba);
+                        tx.send(()).expect("Sending progress for fractal pixels should not fail");
                     });
                 pixels
             }

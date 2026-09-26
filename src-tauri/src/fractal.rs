@@ -1,3 +1,4 @@
+use crossbeam_channel::Sender;
 use serde::Deserialize;
 use strum_macros::{Display, EnumString};
 
@@ -24,7 +25,7 @@ pub enum Algorithm {
 pub trait Fractal {
     fn zoom(&mut self, width: usize, height: usize, px: usize, py: usize, zoom_mult: f64);
 
-    fn get_fractal_pixels(&self, width: usize, height: usize) -> Vec<u8>;
+    fn get_fractal_pixels(&self, width: usize, height: usize, tx: Sender<()>) -> Vec<u8>;
 
     /// Returns the fractal to its initial zoom and position
     fn reset(&mut self);

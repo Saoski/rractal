@@ -8,18 +8,29 @@ function App() {
   const CANVAS_WIDTH = 1600
   const CANVAS_HEIGHT = 900
 
-  const [fractalPixels, setFractalPixels] = useState([])
+  const [fractalPixels, setFractalPixels] = useState([]);
+  const [algoOptions, setAlgoOptions] = useState([]);
+  const [selectedAlgo, setSelectedAlgo] = useState("");
+
+  const getFractalPixels = async () => {
+    return await invoke("get_pixels", { width: CANVAS_WIDTH, height: CANVAS_HEIGHT });
+  }
+
+  const getAlgoOptions = async () => {
+    return await invoke("get_algos");
+  }
 
   useEffect(() => {
     const fetchPixels = async () => {
       setFractalPixels(await getFractalPixels());
     }
+    const fetchAlgos = async () => {
+      setAlgoOptions(await getAlgoOptions())
+    }
     fetchPixels();
+    fetchAlgos();
+    setSelectedAlgo(algoOptions[0]);
   }, [])
-
-  const getFractalPixels = async () => {
-    return await invoke("get_pixels", { width: CANVAS_WIDTH, height: CANVAS_HEIGHT })
-  }
 
   const setZoom = async (event, bounding, width, height) => {
     const devicePixelRatio = window.devicePixelRatio || 1;
@@ -35,11 +46,23 @@ function App() {
     setFractalPixels(await getFractalPixels())
   }
 
+  const handleSelectAlgo = async (chosen_algo) => {
+    await invoke("choose_algo", {chosen_algo})
+  }
+
   return (
     <main className="flex justify-center items-center h-screen">
-      <div className="flex">
-        <div className="flex-col justify-start">
+      <div className="flex items-start">
+        <div className="flex flex-col h-full gap-3">
           <button onClick={() => {resetZoom()}}>Reset</button>
+          <div className="flex gap-1">
+            <label htmlFor="algorithms">Select an algorithm:</label>
+            <select name="algorithms" id="algorithms">
+              {algoOptions.map((algorithm) => (
+                <option value="algorithm" onClick={}>{algorithm}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <Canvas
           fractalPixels={fractalPixels}

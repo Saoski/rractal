@@ -31,20 +31,18 @@ function App() {
     return await invoke("get_pixels", { width: CANVAS_WIDTH, height: CANVAS_HEIGHT });
   }
 
+  const fetchPixels = () => {
+    getFractalPixels().then((pixels) => setFractalPixels(pixels))
+  }
+
   const getAlgoOptions = async () => {
     return await invoke("get_algos");
   }
 
   useEffect(() => {
-    const fetchPixels = async () => {
-      setFractalPixels(await getFractalPixels());
-    }
     const fetchAlgos = async () => {
       setAlgoOptions(await getAlgoOptions())
     }
-    fetchPixels();
-    fetchAlgos();
-    setSelectedAlgo(algoOptions[0]);
 
     // Setup progress listener
     let unlisten = null;
@@ -57,6 +55,10 @@ function App() {
 
     setupProgressListener()
 
+    fetchPixels();
+    fetchAlgos();
+    setSelectedAlgo(algoOptions[0]);
+
     // Cleanup listener on unmount
     return () => {
       if (unlisten !== null) {
@@ -68,18 +70,21 @@ function App() {
   const setZoom = async (event, bounding, width, height) => {
     setFractalProgressPercent(0)
 
+    // TODO: figure out how to make the progress bar work better
+    await new Promise(requestAnimationFrame)
+
     const devicePixelRatio = window.devicePixelRatio || 1;
     const x = Math.round((event.clientX - bounding.left) * devicePixelRatio);
     const y = Math.round((event.clientY - bounding.top) * devicePixelRatio);
 
     console.log(`Clicked at (${x}, ${y})`);
     await invoke("zoom", { width, height, x, y, zoomMult: 2 })
-    setFractalPixels(await getFractalPixels())
+    fetchPixels()
   }
 
   const resetZoom = async () => {
     await invoke("reset_zoom", {})
-    setFractalPixels(await getFractalPixels())
+    fetchPixels()
   }
 
   const handleSelectAlgo = async (e) => {
